@@ -1,0 +1,6 @@
+try
+	set resultText to do shell script "mkdir -p /var/backups/hosts && cp /etc/hosts /var/backups/hosts/hosts.$(date +%Y%m%d_%H%M%S) && added=0 && skipped=0 && for domain in claude.ai www.claude.ai api.claude.ai anthropic.com www.anthropic.com api.anthropic.com console.anthropic.com cdn.anthropic.com statsig.anthropic.com sentry.anthropic.com amplitude.anthropic.com; do if grep -qF \" $domain \" /etc/hosts || grep -qF \"	$domain \" /etc/hosts || grep -qE \"[[:space:]]${domain}$\" /etc/hosts; then skipped=$((skipped+1)); else echo \"0.0.0.0 $domain\" >> /etc/hosts && added=$((added+1)); fi; done && dscacheutil -flushcache; killall -HUP mDNSResponder 2>/dev/null; echo \"Готово. Добавлено: $added. Уже было: $skipped.\"" with administrator privileges
+	display dialog resultText buttons {"OK"} default button "OK" with title "Block Claude"
+on error errText number errNum
+	display dialog "Ошибка (" & errNum & "): " & errText buttons {"OK"} default button "OK" with title "Block Claude" with icon stop
+end try
